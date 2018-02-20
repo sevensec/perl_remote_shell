@@ -2,9 +2,9 @@ use IO::Socket::INET;
 use MIME::Base64;
 
 $| = 1;
-
+my $our_secret = "asd";
 if (@ARGV) {
-    my $our_secret = $ARGV[0];
+    $our_secret = $ARGV[0];
 
 } else {
     print "Please add username credentials : 'perl perl_client.pl {user_cred}' \n";
@@ -30,8 +30,11 @@ while (1) {
 
     my $socket = make_remote_connection();
     my $req = <STDIN>;
-    my $req = $req.$our_secret;
-    my $enc_req = encode_base64($req);;
+    my $req = encode_base64($req);
+    my $key = encode_base64($our_secret);
+    # print $key;
+    my $enc_req = $req.$key;
+    # my $enc_req = encode_base64($req);
     my $size = $socket->send($enc_req);
     shutdown($socket, 1);
 
