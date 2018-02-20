@@ -27,11 +27,11 @@ while(1)
     my $data = "";
     $client_socket->recv($data, 1024);
 
-    $data = decode_base64($data);
     my $password =  (split(/\n/, $data))[-1];
     $data =  (split(/\n/, $data))[0];
-    print $password;
-    print $our_key;
+    $data = decode_base64($data);
+    $password = decode_base64($password);
+
     if ($password eq $our_key) {
 
       print "data $data";
