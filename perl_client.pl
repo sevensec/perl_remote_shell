@@ -1,6 +1,8 @@
 use IO::Socket::INET;
-use Crypt::CBC;
 use MIME::Base64;
+
+
+
 # use Data::Dumper qw(Dumper);
 
 # print Dumper \@ARGV;
@@ -18,14 +20,16 @@ sub make_remote_connection {
 
   return $socket
 }
-my $our_secret = "MYSECRET";
+my $our_secret = $ARGV[0];
+
 # data to send to a server
 
 while (1) {
     my $socket = make_remote_connection();
     my $req = <STDIN>;
     my $req = $req.$our_secret;
-    my $size = $socket->send($req);
+    my $enc_req = encode_base64($req);;
+    my $size = $socket->send($enc_req);
     shutdown($socket, 1);
 
     # receive a response of up to 1024 characters from server
